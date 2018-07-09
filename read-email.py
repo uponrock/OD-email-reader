@@ -2,30 +2,46 @@
 from imapclient import IMAPClient
 import email
 import secrets
+import os
+import csv
 
-# connects to IMAP server 
-server = IMAPClient('imap.gmail.com', use_uid=True)
-server.login(secrets.email, secrets.pwd)
-b'[CAPABILITY IMAP4rev1 LITERAL+ SASL-IR [...] LIST-STATUS QUOTA] Logged in'
+parsedData = []
+tweets = []
 
-# Selects inbox as target
-select_info = server.select_folder('INBOX')
-print('%d messages in INBOX' % select_info[b'EXISTS'])
+def login_and_write():
+    # connects to IMAP server 
+    server = IMAPClient('imap.gmail.com', use_uid=True)
+    server.login(secrets.email, secrets.pwd)
+    b'[CAPABILITY IMAP4rev1 LITERAL+ SASL-IR [...] LIST-STATUS QUOTA] Logged in'
 
-# Searches inbox for emails from desired address
-messages = server.search(['FROM', secrets.target_email])
-print("%d messages from our best friend" % len(messages))
+    # Selects inbox as target
+    select_info = server.select_folder('INBOX')
 
-# loops through messages to fetch text content
-for msgid, data in server.fetch(messages, ['BODY[TEXT]']).items():
-    envelope = data[b'BODY[TEXT]']
-    # this method is too specific and could cause problems
-    # researching better solutions
-    target = str(envelope.decode()[9697:9745])
-    parsedData = target.split(";")
-    parsedData.pop(-1)
-    print(parsedData)
-    # CSV writing functionality to go here
+    # Searches inbox for emails from desired address
+    messages = server.search(['FROM', secrets.target_email])
 
-server.logout()
-b'Logging out'
+    info_sheet = open('//CHFS/Shared Documents/OpenData/datasets/staging/fire-dept-twitter.csv', 'w')    
+
+    if os.stat('fire-dept-twitter.csv').st_size == 0:
+        info_sheet.write("Address, City, Type of Incident \n")
+
+    # loops through messages to fetch text content
+    # reassigns the parsedData list each iteration to prevent duplicates
+    for msgid, data in server.fetch(messages, ['BODY[TEXT]']).items():
+        envelope = data[b'BODY[TEXT]']
+        target = str(envelope.decode()[14:67])
+        parsedData = target.split(";")
+        parsedData.pop(0)
+        info_sheet.write(parsedData[0] + ",")
+        info_sheet.write(parsedData[1] + ",")
+        info_sheet.write(parsedData[2] + "\n")
+
+    logout(server)
+
+# Logs out of remote session
+def logout(server):
+    server.logout()
+    b'Logging out'
+
+# calls login function
+login_and_write()
