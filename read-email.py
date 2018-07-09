@@ -20,7 +20,7 @@ def login_and_write():
     # Searches inbox for emails from desired address
     messages = server.search(['FROM', secrets.target_email])
 
-    info_sheet = open('fire-dept-twitter.csv', 'w')    
+    info_sheet = open('//CHFS/Shared Documents/OpenData/datasets/staging/fire-dept-twitter.csv', 'w')    
 
     if os.stat('fire-dept-twitter.csv').st_size == 0:
         info_sheet.write("Address, City, Type of Incident \n")
