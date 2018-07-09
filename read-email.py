@@ -22,7 +22,7 @@ def login_and_write():
 
     info_sheet = open('//CHFS/Shared Documents/OpenData/datasets/staging/fire-dept-twitter.csv', 'w')    
 
-    if os.stat('fire-dept-twitter.csv').st_size == 0:
+    if os.stat('//CHFS/Shared Documents/OpenData/datasets/staging/fire-dept-twitter.csv').st_size == 0:
         info_sheet.write("Address, City, Type of Incident \n")
 
     # loops through messages to fetch text content
