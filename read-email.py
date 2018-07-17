@@ -37,12 +37,15 @@ def login_and_write():
         parsedData.pop(0)
         # The emails typically contain special characters
         # using regex to remove them
-        new_string1 = re.sub('[^A-Za-z0-9 ]+', '', parsedData[0])
-        new_string2 = re.sub('[^A-Za-z0-9 ]+', '', parsedData[1])
-        new_string3 = re.sub('[^A-Za-z0-9 ]+', '', parsedData[2])
-        info_sheet.write(new_string1 + ",")
-        info_sheet.write(new_string2 + ",")
-        info_sheet.write(new_string3 + "\n")
+        try:
+            new_string1 = re.sub('[^A-Za-z0-9 ]+', '', parsedData[0])
+            new_string2 = re.sub('[^A-Za-z0-9 ]+', '', parsedData[1])
+            new_string3 = re.sub('[^A-Za-z0-9 ]+', '', parsedData[2])
+            info_sheet.write(new_string1 + ",")
+            info_sheet.write(new_string2 + ",")
+            info_sheet.write(new_string3 + "\n")
+        except:
+            continue
 
     logout(server)
 
