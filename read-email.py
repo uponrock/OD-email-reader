@@ -12,7 +12,7 @@ def login_and_write():
     print("Connecting...")
     try: 
         # Login via secrets credentials
-        imapserver.login(secrets.odsuser,secrets.odspass)
+        imapserver.login(secrets.odsusername,secrets.odspassword)
         print("Connected.") 
     except: 
         print("Not connected.")
@@ -29,8 +29,6 @@ def etl_data(server):
     # Var to hold datetime of last hour
     last_hour_date_time = datetime.datetime.now() - timedelta(hours = 1)
     print(last_hour_date_time)
-
-    
 
     # Open csv
     info_sheet = open('fire_dept_raw_dispatches.csv', 'a') 
@@ -90,9 +88,9 @@ def cleanup_csv(dateslist):
     del df["ID2"]
     df.drop_duplicates(keep='first')
     # Cleaned file 
-    clean_file = open("fire_dept_dispatches_clean.csv", "a")
+    clean_file = open("//CHFS/Shared Documents/OpenData/datasets/staging/fire_dept_dispatches_clean.csv", "a")
     # Write headers to blank clean file
-    if os.stat('fire_dept_dispatches_clean.csv').st_size == 0:
+    if os.stat('//CHFS/Shared Documents/OpenData/datasets/staging/fire_dept_dispatches_clean.csv').st_size == 0:
         clean_file.write(",CAD,Address,City,Type of Incident,ID,ID2,Dates\n")
     # New dates column merged into data frame
     new_column = pd.DataFrame({"Dates": dateslist})
@@ -103,7 +101,7 @@ def cleanup_csv(dateslist):
 
 # Main function to call other functions
 def main(): 
-    fire_log = open("fire_dispatch_log.txt", "a")
+    fire_log = open("//CHFS/Shared Documents/OpenData/datasets/logfiles/fire_dispatch_log.txt", "a")
     try:     
         # Set var to hold what is returned from long_and_write()
         exchange_mail = login_and_write()
