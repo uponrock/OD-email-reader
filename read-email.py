@@ -30,15 +30,18 @@ def etl_data(server):
     last_hour_date_time = datetime.datetime.now() - timedelta(hours = 1)
     print(last_hour_date_time)
 
-    # Searches inbox for emails received from Orange Co Dispatch in the past hour
-    messages = server.search(['SINCE', last_hour_date_time, 'FROM', 'Orange Co EMS Dispatch'])
-    print("New messages:", messages)
+    
 
     # Open csv
     info_sheet = open('fire_dept_raw_dispatches.csv', 'a') 
     # if there's no header, write headers
     if os.stat('fire_dept_raw_dispatches.csv').st_size == 0:
         info_sheet.write("CAD,Address,City,Type of Incident,ID,ID2\n") 
+        messages = server.search(['FROM', 'Orange Co EMS Dispatch'])
+        print("New messages:", messages)
+    else:
+        messages = server.search(['SINCE', last_hour_date_time, 'FROM', 'Orange Co EMS Dispatch'])
+        print("New messages:", messages)
  
     datetimes = []
     # Fetch Envelope data which contains date received
@@ -82,14 +85,20 @@ def cleanup_csv(dateslist):
     print("Cleaning CSV...")
     # Create pandas dataframe from original csv
     df = pd.read_csv("fire_dept_raw_dispatches.csv")
-    # Delete PII rows
+    # Delete PII rows and drop duplicate records
     del df["ID"]
     del df["ID2"]
-    # Add new column with dates from list 
+    df.drop_duplicates(keep='first')
+    # Cleaned file 
+    clean_file = open("fire_dept_dispatches_clean.csv", "a")
+    # Write headers to blank clean file
+    if os.stat('fire_dept_dispatches_clean.csv').st_size == 0:
+        clean_file.write(",CAD,Address,City,Type of Incident,ID,ID2,Dates\n")
+    # New dates column merged into data frame
     new_column = pd.DataFrame({"Dates": dateslist})
     df = df.merge(new_column, left_index = True, right_index = True)
     # Write dataframe to new, finalized csv
-    df.to_csv("fire_dept_dispatches_clean.csv")
+    df.to_csv(clean_file, mode='a', header=False)
     print("CSV cleaned and rewritten.")
 
 # Main function to call other functions
